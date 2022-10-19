@@ -1,0 +1,42 @@
+packer {
+    required_plugins {
+      amazon = {
+        version = ">= 0.0.2"
+        source  = "github.com/hashicorp/amazon"
+      }
+    }
+  }
+  
+  source "amazon-ebs" "linux" {
+    ami_name      = "javahome-packer-apache2-linux-aws-v3"
+    instance_type = "t2.micro"
+    region        = "ap-south-1"
+    source_ami    = "ami-01216e7612243e0ef"
+    ssh_username = "ec2-user"
+  }
+  
+  build {
+    sources = [
+      "source.amazon-ebs.linux"
+    ]
+  
+    provisioner "file" {
+      destination = "~/"
+      source      = "./index.html"
+    }
+  
+    provisioner "file" {
+      destination = "~/"
+      source      = "./index.html"
+    }
+  
+    provisioner "shell" {
+      inline = [
+        "echo Installing Apache",
+        "sudo yum install -y httpd",
+        "sudo cp ~/index.html /var/www/html/",
+        "sudo systemctl start httpd",
+        "sudo systemctl enable httpd"
+      ]
+    }
+  }
